@@ -290,7 +290,7 @@ compare_string:
 
         jmp compare_start
 
-    compare_failed:
+    compare_failure:
         mov rax, 0
         jmp compare_end
 
