@@ -1,2 +1,25 @@
-# PEattacklab
+# PE attack lab
+
 PE文件攻击实验
+
+为test.exe 文件新增添一个 `.skadi` 节(属性：可读可写可执行，包含代码，RVA：0x7000，大小：0x4000)，将恶意代码写入到该节，设置程序的入口地址为新增添的节的起始地址。
+
+源码：
+- `test.cpp` 实验的PE文件的源代码，由最新版本的 MSVC 编译器构建成为 `test.exe` 程序。
+- `shellcode.asm` 是由NASM汇编语言编写的恶意代码
+- `write.rs` 读取shellcode.obj 文件中的节的内容(从.text节内容的开始一直到文件末尾)，将其写入到为test.exe 新增添的 `.skadi` 节中(属性：可读可写可执行，包含代码)
+
+构建：
+以下命令将得到 shellcode.obj 文件
+```
+nasm -f win64 .\shellcode.asm
+```
+
+build:
+
+- `test_backup.exe` 用最新版本的 msvc编译器编译好的 test.cpp，只增添了 .skadi 节，并没有更改程序的入口地址，可以正常运行。 
+- `test.exe` 已经注入好了 shellcode 代码，更改了程序的入口地址，但在调用api 的时候会触发异常
+
+shellcode:
+
+利用程序的PEB找到当前模块被加载到内存的基地址，通过解析PE头，获取导入表，从导入表找到`USER32.dll`的导入表，然后获取 `USER32!MessageBoxA` 系统API的真正地址，接着调用`MessageBoxA(0, 0, 0, 0)`。
