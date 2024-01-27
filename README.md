@@ -2,6 +2,10 @@
 
 PE文件攻击实验
 
+update#0:
+
+修改PE可选头，设置入口地址为`.skadi`节，修改shellcode代码，使用shellcode得到系统API函数的地址，存放在预先设定好的位置。shellcode修改`call main`代码的指令码。计算main函数的地址，备份。然后修改该指令码的操作数为恶意代码的地址，在恶意代码的最后使用jmp指令回到main函数。**失败**
+
 为test.exe 文件新增添一个 `.skadi` 节(属性：可读可写可执行，包含代码，RVA：0x7000，大小：0x4000)，将恶意代码写入到该节。~~设置程序的入口地址为新增添的节的起始地址~~。IDA反汇编`test.exe`程序，寻找`call main`指令的偏移，计算shellcode与当前指令的偏移值，写入到 `E8` 指令码后，修改shellcode，在shellcode末尾添加jmp指令跳转到 main 函数的位置。(有意思的是，只要你敢更改 `call main` 这条指令，Windows Defender直接给你杀了)
 
 现代C++编译器增加了很多保护机制，直接修改PE的入口地址调用API会触发异常。Windows执行API的过程中会做一些安全检查，设置一些内存属性。
